@@ -5,6 +5,7 @@ import { WebSocketServer } from "ws";
 import {
   AddShipsRequestType,
   AddToRoomRequestType,
+  AttackRequestType,
   ClientResponse,
   RegRequestType,
 } from "./types/request.type";
@@ -17,6 +18,9 @@ import {
   updateRoomState,
   updateWinners,
 } from "./controllers/game";
+import { getRoomById } from "./store/rooms";
+import { innerParse } from "./utils/innerParse";
+import { innerStringify } from "./utils/innerStringify";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,16 +39,18 @@ wss.on("connection", (ws: AuthedWebSocket) => {
 
   ws.on("message", (data) => {
     try {
-      const dataParsed: ClientResponse = JSON.parse(data.toString());
+      const dataParsed: ClientResponse = innerParse(data.toString());
+      console.log(dataParsed);
+
       switch (dataParsed.type) {
         case MessageTypes.REG: {
           const result = reg(dataParsed.data as RegRequestType, ws);
-          ws.send(JSON.stringify(result));
+          ws.send(innerStringify(result));
           break;
         }
         case MessageTypes.UPDATE_WINNERS: {
           const result = updateWinners();
-          ws.send(JSON.stringify(result));
+          ws.send(innerStringify(result));
 
           break;
         }
@@ -60,23 +66,42 @@ wss.on("connection", (ws: AuthedWebSocket) => {
               indexRoom: (dataParsed.data as AddToRoomRequestType).indexRoom,
               playerId: ws.playerId,
             });
-            ws.send(JSON.stringify(result));
+            ws.send(innerStringify(result));
           }
           break;
         }
         case MessageTypes.UPDATE_ROOM: {
           const result = updateRoomState();
-          ws.send(JSON.stringify({ result }));
+          ws.send(innerStringify({ result }));
 
           break;
         }
         case MessageTypes.ADD_SHIPS: {
-          const result = addShips(dataParsed.data as AddShipsRequestType);
-          ws.send(JSON.stringify({ result }));
+          const shipsData = dataParsed.data as AddShipsRequestType;
+          addShips(shipsData);
+
+          const room = getRoomById(shipsData.gameId);
+
+          if (room && Object.keys(room.ships).length > 1) {
+            ws.send(
+              innerStringify({
+                type: MessageTypes.START_GAME,
+                data: {
+                  ships: shipsData.ships[shipsData.indexPlayer],
+                },
+              })
+            );
+          }
 
           break;
         }
+        case MessageTypes.ATTACK: {
+          const attackData = dataParsed.data as AttackRequestType;
 
+          attack(attackData);
+
+          break;
+        }
         default:
           break;
       }

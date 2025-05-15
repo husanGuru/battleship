@@ -5,12 +5,13 @@ export interface Ship {
   direction: boolean;
   length: number;
   type: "small" | "medium" | "large" | "huge";
-  playerIndex: number;
 }
 export default class Room {
   players: Player["id"][] = [];
   id: number;
-  ships: Ship[] = [];
+  ships: Record<number, Ship[]> & { [id: number]: Ship[] } & {
+    length?: never;
+  } = {};
 
   constructor({ playerId, id }: { id: number; playerId: number }) {
     this.players.push(playerId);
@@ -20,7 +21,7 @@ export default class Room {
     this.players.push(playerId);
   }
 
-  addShips(ships: Ship[]) {
-    this.ships.push(...ships);
+  addShips(ships: Ship[], playerId: number) {
+    this.ships[playerId] = ships;
   }
 }

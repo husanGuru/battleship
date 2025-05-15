@@ -7,7 +7,7 @@ import {
 } from "src/store/rooms";
 import { getWinners } from "src/store/winners";
 import { MessageTypes } from "src/types/index.type";
-import { AddShipsRequestType } from "src/types/request.type";
+import { AddShipsRequestType, AttackRequestType } from "src/types/request.type";
 
 export function updateWinners() {
   return {
@@ -53,6 +53,20 @@ export function updateRoomState() {
   };
 }
 export function addShips(data: AddShipsRequestType) {
-  addShipsToRoom({ roomId: data.gameId, ships: data.ships });
+  addShipsToRoom({
+    roomId: data.gameId,
+    ships: data.ships,
+    playerId: data.indexPlayer,
+  });
+}
+
+export function attack(data: AttackRequestType) {
+
   
+
+  addShipsToRoom({
+    roomId: data.gameId,
+    ships: data.ships,
+    playerId: data.indexPlayer,
+  });
 }

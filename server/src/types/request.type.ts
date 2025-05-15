@@ -1,8 +1,13 @@
+import { Ship } from "src/entities/Room";
 import { MessageTypes } from "./index.type";
 
 export type ClientResponse = {
   type: MessageTypes;
-  data: RegRequestType | AddToRoomRequestType | AddShipsRequestType;
+  data:
+    | RegRequestType
+    | AddToRoomRequestType
+    | AddShipsRequestType
+    | AttackRequestType;
   id: 0;
 };
 
@@ -15,11 +20,12 @@ export type AddToRoomRequestType = {
 };
 export type AddShipsRequestType = {
   gameId: number;
-  ships: {
-    position: { x: number; y: number };
-    direction: boolean;
-    length: number;
-    type: "small" | "medium" | "large" | "huge";
-  }[];
+  ships: Omit<Ship, "indexPlayer">[];
+  indexPlayer: number;
+};
+export type AttackRequestType = {
+  gameId: number;
+  x: number;
+  y: number;
   indexPlayer: number;
 };

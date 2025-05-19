@@ -19,10 +19,10 @@ export function login({ name, password }: RegRequestType) {
       new Player({
         name,
         password,
-        id: Math.max(...players.map((p) => p.id)) + 1,
+        id: players.length > 0 ? Math.max(...players.map((p) => p.id)) + 1 : 1,
       })
     );
     playerIndex = newLength - 1;
   }
-  return { ...players[playerIndex], index: playerIndex };
+  return { ...players[playerIndex] };
 }

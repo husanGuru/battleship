@@ -3,10 +3,6 @@ import { AuthedWebSocket, MessageTypes } from "src/types/index.type";
 import { RegRequestType } from "src/types/request.type";
 
 export default function reg(data: RegRequestType, ws: AuthedWebSocket) {
-  console.log(data);
-  console.log(data.name);
-  console.log(data.password);
-
   if (!data?.name || !data?.password) {
     return {
       type: MessageTypes.REG,
@@ -14,6 +10,7 @@ export default function reg(data: RegRequestType, ws: AuthedWebSocket) {
         error: true,
         errorText: "Name or password not provided",
       },
+      id: 0,
     };
   }
   const player = login(data);
@@ -22,9 +19,10 @@ export default function reg(data: RegRequestType, ws: AuthedWebSocket) {
     type: MessageTypes.REG,
     data: {
       name: player.name,
-      index: player.index,
+      index: player.id,
       error: false,
       errorText: "",
     },
+    id: 0,
   };
 }
